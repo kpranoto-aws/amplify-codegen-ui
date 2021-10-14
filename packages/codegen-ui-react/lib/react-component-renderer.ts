@@ -16,11 +16,7 @@
 import { ComponentRendererBase, StudioNode, StudioComponent, StudioComponentChild } from '@aws-amplify/codegen-ui';
 import { JsxAttributeLike, JsxElement, JsxOpeningElement, factory, JsxSelfClosingElement } from 'typescript';
 
-import {
-  addBindingPropertiesImports,
-  buildOpeningElementAttributes,
-  buildOpeningElementActions,
-} from './react-component-render-helper';
+import { addBindingPropertiesImports, buildOpeningElementAttributes } from './react-component-render-helper';
 import { ImportCollection, ImportSource, ImportValue } from './imports';
 
 export class ReactComponentRenderer<TPropIn> extends ComponentRendererBase<
@@ -52,12 +48,6 @@ export class ReactComponentRenderer<TPropIn> extends ComponentRendererBase<
     const attributes = Object.entries(this.component.properties).map(([key, value]) =>
       buildOpeningElementAttributes(value, key),
     );
-
-    if ('events' in this.component && this.component.events !== undefined) {
-      attributes.push(
-        ...Object.entries(this.component.events).map(([key, value]) => buildOpeningElementActions(key, value)),
-      );
-    }
 
     this.addPropsSpreadAttributes(attributes);
 

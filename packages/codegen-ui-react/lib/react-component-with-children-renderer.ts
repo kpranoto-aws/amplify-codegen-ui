@@ -21,11 +21,7 @@ import {
 } from '@aws-amplify/codegen-ui';
 import { JsxAttributeLike, JsxElement, JsxChild, JsxOpeningElement, SyntaxKind, Expression, factory } from 'typescript';
 import { ImportCollection, ImportSource, ImportValue } from './imports';
-import {
-  addBindingPropertiesImports,
-  buildOpeningElementAttributes,
-  buildOpeningElementActions,
-} from './react-component-render-helper';
+import { addBindingPropertiesImports, buildOpeningElementAttributes } from './react-component-render-helper';
 import Primitive, { PrimitiveChildrenPropMapping } from './primitive';
 
 export class ReactComponentWithChildrenRenderer<TPropIn> extends ComponentWithChildrenRendererBase<
@@ -61,12 +57,6 @@ export class ReactComponentWithChildrenRenderer<TPropIn> extends ComponentWithCh
     const attributes = Object.entries(this.component.properties).map(([key, value]) =>
       buildOpeningElementAttributes(value, key),
     );
-
-    if ('events' in this.component && this.component.events !== undefined) {
-      attributes.push(
-        ...Object.entries(this.component.events).map(([key, value]) => buildOpeningElementActions(key, value)),
-      );
-    }
 
     this.addPropsSpreadAttributes(attributes);
 

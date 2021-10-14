@@ -76,12 +76,7 @@ export type StudioComponent = {
   overrides?: StudioComponentOverrides;
 
   bindingProperties: {
-    [propertyName: string]:
-      | StudioComponentDataPropertyBinding
-      | StudioComponentAuthPropertyBinding
-      | StudioComponentStoragePropertyBinding
-      | StudioComponentSimplePropertyBinding
-      | StudioComponentEventPropertyBinding;
+    [propertyName: string]: StudioComponentPropertyBinding;
   };
 
   /**
@@ -89,13 +84,6 @@ export type StudioComponent = {
    */
   collectionProperties?: {
     [propertyName: string]: StudioComponentDataConfiguration;
-  };
-
-  /**
-   * Component actions
-   */
-  actions?: {
-    [actionName: string]: StudioComponentAction;
   };
 };
 
@@ -140,12 +128,7 @@ export type NewStudioComponent = {
   overrides?: StudioComponentOverrides;
 
   bindingProperties: {
-    [propertyName: string]:
-      | StudioComponentDataPropertyBinding
-      | StudioComponentAuthPropertyBinding
-      | StudioComponentStoragePropertyBinding
-      | StudioComponentSimplePropertyBinding
-      | StudioComponentEventPropertyBinding;
+    [propertyName: string]: StudioComponentPropertyBinding;
   };
 
   /**
@@ -190,14 +173,6 @@ export type StudioComponentChild = {
    * These are the nested components in a composite
    */
   children?: StudioComponentChild[];
-
-  /**
-   * Event <-> Action mapping (e.g click => SignOutAction)
-   * When an event is triggered, an action is executed
-   */
-  events?: {
-    [eventName: string]: string;
-  };
 };
 
 /**
@@ -258,7 +233,6 @@ export type StudioComponentProperty = (
   | CollectionStudioComponentProperty
   | ConcatenatedStudioComponentProperty
   | ConditionalStudioComponentProperty
-  | WorkflowStudioComponentProperty
   | FormStudioComponentProperty
 ) &
   CommonPropertyValues;
@@ -335,14 +309,6 @@ export type ConditionalStudioComponentProperty = {
 };
 
 /**
- * This represents a component property that is configured with either
- * data bound values
- */
-export type WorkflowStudioComponentProperty = {
-  event: string;
-};
-
-/**
  * This is the configuration for a form binding. This is
  * technically an extension of Workflows but because it is
  * pretty unique, it should be separated out with its own definition
@@ -382,6 +348,14 @@ export type StudioComponentSort = {
   direction: 'ASC' | 'DESC';
 };
 
+export type StudioComponentPropertyBinding =
+  | StudioComponentDataPropertyBinding
+  | StudioComponentAuthPropertyBinding
+  | StudioComponentStoragePropertyBinding
+  | StudioComponentSimplePropertyBinding
+  | StudioComponentEventPropertyBinding
+  | StudioComponentActionPropertyBinding;
+
 /**
  * This represent the configuration for binding a component property
  * to Amplify specific information
@@ -407,6 +381,11 @@ export type StudioComponentEventPropertyBinding = {
    * This declares that the type is of a workflow binding
    */
   type: 'Event';
+};
+
+export type StudioComponentActionPropertyBinding = {
+  type: 'Action';
+  bindingProperties: StudioComponentActionBindingProperty;
 };
 
 export type FormBindings = {
@@ -474,6 +453,8 @@ export enum StudioComponentPropertyBindingType {
   Data = 'Data',
   Authentication = 'Authentication',
   Storage = 'Storage',
+  Event = 'Event',
+  Action = 'Action',
 }
 
 /**
@@ -532,7 +513,10 @@ export type StudioThemeValue = {
 /**
  * Component action types
  */
-export type StudioComponentAction = AmplifyAuthSignOutAction | NavigationAction;
+export type StudioComponentActionBindingProperty =
+  | AmplifyAuthSignOutAction
+  | NavigationAction
+  | AmplifyDataStoreUpdateItemAction;
 
 /**
  * Amplify Auth signout Action type
@@ -540,7 +524,18 @@ export type StudioComponentAction = AmplifyAuthSignOutAction | NavigationAction;
 export type AmplifyAuthSignOutAction = {
   type: 'Amplify.Auth.SignOut';
   parameters?: {
-    global: boolean;
+    global: StudioComponentProperty;
+  };
+};
+
+export type AmplifyDataStoreUpdateItemAction = {
+  type: 'Amplify.DataStore.UpdateItem';
+  parameters: {
+    model: string;
+    itemId: StudioComponentProperty;
+    fields: {
+      [field: string]: StudioComponentProperty;
+    };
   };
 };
 
@@ -555,8 +550,8 @@ export type NavigationAction = NavigationRedirectAction | NavigationOpenAction |
 export type NavigationRedirectAction = {
   type: 'Navigation.Redirect';
   parameters: {
-    href: string;
-    replaceHistory?: boolean; // Default to false
+    href: StudioComponentProperty;
+    replaceHistory?: StudioComponentProperty;
   };
 };
 
@@ -566,7 +561,7 @@ export type NavigationRedirectAction = {
 export type NavigationOpenAction = {
   type: 'Navigation.Open';
   parameters: {
-    href: string;
+    href: StudioComponentProperty;
   };
 };
 
